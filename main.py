@@ -3,7 +3,12 @@ import tkinter.filedialog
 import math as m
 import os
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+NavigationToolbar2Tk)
+import random as r
+import numpy as np
 
 # Setup for tkinter
 root = tk.Tk()
@@ -11,7 +16,29 @@ root = tk.Tk()
 # Set the window to not be resizeable, add a title to the window and the set the window dimensions
 root.resizable(False, False)
 root.title("Zack's Light Curve Graphing Tool")
-root.geometry("500x500")
+root.geometry("1000x500")
+root.configure(bg='white')
+
+
+def plot():
+    fig = Figure(figsize=(5, 4), dpi=100)
+
+    colors = ['red','green','blue','purple']
+
+    t = np.arange(0, 3, .01)
+    subplot = fig.add_subplot(111)
+    subplot.plot(t, 2 * np.sin(2 * np.pi * t), color=colors[r.randrange(0,3, 1)])
+    subplot.set_xlabel("time [s]")
+    subplot.set_ylabel("f(t)")
+    subplot.set_title("Super cool Plot")
+
+    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+    canvas.draw()
+    canvas.get_tk_widget().place(x=405, y=20)
+
+    #toolbar = NavigationToolbar2Tk(canvas, root)
+    #toolbar.update()
+    #canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
 def CalculateData(filepath):
 
@@ -93,19 +120,22 @@ def browseFile():
     return filepath
 
 
+
+
+
 label = tk.Label(root, text="Zack's Light Curve Graphing Tool", font=("Courier", 14), bg="grey")
-label.grid(column=0, row=0, pady = 15)
+label.place(x=15, y=15)
 root.columnconfigure(0, weight=1)
 
 instructions = tk.Label(root, text="Welcome! This program takes an excel file of light flux data. \n "
                                   "It graphs a light curve of time vs magnitude.")
-instructions.grid(column=0, row=1,)
+instructions.place(x=25, y=55)
 
 button = tk.Button(root, text="Browse File", command=browseFile)
-button.grid(column=0, row=2)
+button.place(x=150, y=105)
 
 label_primary_check = tk.Label(root, text="Please select your primary check star:")
-label_primary_check.place(x=150, y=500/3.5)
+label_primary_check.place(x=85, y=143)
 
 selected = tk.StringVar(value=' ')
 r2 = tk.Radiobutton(root, text='C2', value='C2', variable=selected)
@@ -114,19 +144,27 @@ r4 = tk.Radiobutton(root, text='C4', value='C4', variable=selected)
 r5 = tk.Radiobutton(root, text='C5', value='C5', variable=selected)
 r6 = tk.Radiobutton(root, text='C6', value='C6', variable=selected)
 
-r2.place(x=500*(0.75/6), y=500/3)
-r3.place(x=500*(1.75/6), y=500/3)
-r4.place(x=500*(2.75/6), y=500/3)
-r5.place(x=500*(3.75/6), y=500/3)
-r6.place(x=500*(4.75/6), y=500/3)
+r2_x = 65
+
+r2.place(x=r2_x, y=175)
+r3.place(x=r2_x+50, y=175)
+r4.place(x=r2_x+100, y=175)
+r5.place(x=r2_x+150, y=175)
+r6.place(x=r2_x+200, y=175)
+
+
+graph_button = tk.Button(root, text="Graph Curve", command=plot)
+graph_button.place(x=145, y=285)
 
 # Create label for Planet Name
+
+check_star_mag_label_x = 75
 check_star_mag_label = tk.Label(root, text="Check Star Magnitude:")
-check_star_mag_label.place(x=150, y=225)
+check_star_mag_label.place(x=check_star_mag_label_x, y=225)
 
 # Create textbox input for Planet Name
 check_star_mag_box = tk.Entry(root, width=10, borderwidth=5)
-check_star_mag_box.place(x=280, y=225)
+check_star_mag_box.place(x=check_star_mag_label_x+130, y=225)
 
 
 
