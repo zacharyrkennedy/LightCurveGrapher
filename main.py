@@ -16,8 +16,45 @@ root = tk.Tk()
 # Set the window to not be resizeable, add a title to the window and the set the window dimensions
 root.resizable(False, False)
 root.title("Zack's Light Curve Graphing Tool")
-root.geometry("1000x500")
+root.geometry("900x450")
 root.configure(bg='white')
+
+def plotLightCurve():
+
+
+    CalculateData(filepath)
+
+    fig = Figure(figsize=(5,4), dpi=100)
+
+    subplot = fig.add_subplot(111)
+
+    subplot.scatter(jd_list, c2_app_mag, label="c2 apparent mag.")
+    subplot.scatter(jd_list, c3_app_mag, label="c3 apparent mag.")
+    subplot.scatter(jd_list, c4_app_mag, label="c4 apparent mag.")
+
+    if source_c5_list[0] != 0:
+        subplot.scatter(jd_list, c5_app_mag, label="c5 apparent mag.")
+    if source_c6_list[0] != 0:
+        subplot.scatter(jd_list, c6_app_mag, label="c6 apparent mag.")
+
+    subplot.scatter(jd_list, t1_app_mag, label="t1 apparent mag.")
+
+    subplot.legend(title='Object Magnititudes', bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    #subplot.tight_layout()
+
+    plt.scatter(jd_list, c2_app_mag, label="c2 apparent mag.")
+    plt.scatter(jd_list, c3_app_mag, label="c3 apparent mag.")
+    plt.scatter(jd_list, c4_app_mag, label="c4 apparent mag.")
+
+    for i in range(len(c3_app_mag)):
+        print(c3_app_mag[i])
+
+
+    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+    canvas.draw()
+    canvas.get_tk_widget().place(x=405, y=20)
+
+    plt.show()
 
 
 def plot():
@@ -42,7 +79,8 @@ def plot():
 
 def CalculateData(filepath):
 
-    global jd_list
+    global jd_list, total_source_list, total_mag_dif, total_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag
+    global c6_app_mag, source_c5_list, source_c6_list, t1_app_mag
 
     df = pd.read_csv(filepath)
 
@@ -103,6 +141,35 @@ def CalculateData(filepath):
         total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag, c6_app_mag]
 
 
+    choice = int(checkStarChoice.get())
+    mag = check_star_mag_box.get()
+
+    source_choice = total_source_list[choice]
+    mag_dif_choice = total_mag_dif[choice]
+    app_mag_choice = total_app_mag[choice]
+
+    del(total_source_list[choice])
+    del(total_mag_dif[choice])
+    del(total_app_mag[choice])
+
+    check_pick(source_choice, mag_dif_choice, app_mag_choice, mag)
+    process_data(source_choice, mag_dif_choice, app_mag_choice)
+
+def process_data(source_choice, mag_dif_choice, app_mag_choice):
+
+    for i in range(len(total_source_list)):
+
+        source = total_source_list[i]
+        mag_dif = total_mag_dif[i]
+        app_mag = total_app_mag[i]
+
+        for j in range(len(app_mag_choice)):
+            mag_dif.append(-2.5*m.log10(source[j]/source_choice[j]))
+            #print(mag_dif[j])
+            app_mag.append(mag_dif[j]+float(checkStarChoice.get()))
+            #print(mag_dif[j])
+
+
 def check_pick(source_choice, mag_dif_choice, app_mag_choice, mag):
 
     for i in range(len(jd_list)):
@@ -113,9 +180,11 @@ def check_pick(source_choice, mag_dif_choice, app_mag_choice, mag):
 
 
 def browseFile():
+
+    global filepath
+
     filepath = tk.filedialog.askopenfilename()
     print(filepath)
-    filename = print(os.path.basename(filepath))
 
     return filepath
 
@@ -137,12 +206,12 @@ button.place(x=150, y=105)
 label_primary_check = tk.Label(root, text="Please select your primary check star:")
 label_primary_check.place(x=85, y=143)
 
-selected = tk.StringVar(value=' ')
-r2 = tk.Radiobutton(root, text='C2', value='C2', variable=selected)
-r3 = tk.Radiobutton(root, text='C3', value='C3', variable=selected)
-r4 = tk.Radiobutton(root, text='C4', value='C4', variable=selected)
-r5 = tk.Radiobutton(root, text='C5', value='C5', variable=selected)
-r6 = tk.Radiobutton(root, text='C6', value='C6', variable=selected)
+checkStarChoice = tk.StringVar(value=1)
+r2 = tk.Radiobutton(root, text='C2', value=1, variable=checkStarChoice)
+r3 = tk.Radiobutton(root, text='C3', value=2, variable=checkStarChoice)
+r4 = tk.Radiobutton(root, text='C4', value=3, variable=checkStarChoice)
+r5 = tk.Radiobutton(root, text='C5', value=4, variable=checkStarChoice)
+r6 = tk.Radiobutton(root, text='C6', value=5, variable=checkStarChoice)
 
 r2_x = 65
 
@@ -153,7 +222,7 @@ r5.place(x=r2_x+150, y=175)
 r6.place(x=r2_x+200, y=175)
 
 
-graph_button = tk.Button(root, text="Graph Curve", command=plot)
+graph_button = tk.Button(root, text="Graph Curve", command=plotLightCurve)
 graph_button.place(x=145, y=285)
 
 # Create label for Planet Name
