@@ -7,176 +7,39 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
+from PIL import Image, ImageTk
 import random as r
 import numpy as np
+import LCGLib
+from PIL import Image, ImageTk
 
 # Setup for tkinter
 root = tk.Tk()
 
+#Setup for LCGLib
+myLCG = LCGLib.LCG()
+
 # Set the window to not be resizeable, add a title to the window and the set the window dimensions
 root.resizable(False, False)
-root.title("Zack's Light Curve Graphing Tool")
-root.geometry("900x450")
+root.title("KTPO Light Curve Graphing Tool")
+root.geometry("450x450")
 root.configure(bg='white')
 
 def plotLightCurve():
 
+    myLCG.setCheckChoice(int(checkStarChoice.get()))
+    myLCG.setChoiceMag(check_star_mag_box.get())
 
-    CalculateData(filepath)
+    myLCG.ConfigureFile()
+    myLCG.process_data()
 
-    fig = Figure(figsize=(5,4), dpi=100)
-
-    subplot = fig.add_subplot(111)
-
-    subplot.scatter(jd_list, c2_app_mag, label="c2 apparent mag.")
-    subplot.scatter(jd_list, c3_app_mag, label="c3 apparent mag.")
-    subplot.scatter(jd_list, c4_app_mag, label="c4 apparent mag.")
-
-    if source_c5_list[0] != 0:
-        subplot.scatter(jd_list, c5_app_mag, label="c5 apparent mag.")
-    if source_c6_list[0] != 0:
-        subplot.scatter(jd_list, c6_app_mag, label="c6 apparent mag.")
-
-    subplot.scatter(jd_list, t1_app_mag, label="t1 apparent mag.")
-
-    subplot.legend(title='Object Magnititudes', bbox_to_anchor=(1.05, 1.0), loc='upper left')
-    #subplot.tight_layout()
-
-    plt.scatter(jd_list, c2_app_mag, label="c2 apparent mag.")
-    plt.scatter(jd_list, c3_app_mag, label="c3 apparent mag.")
-    plt.scatter(jd_list, c4_app_mag, label="c4 apparent mag.")
-
-    for i in range(len(c3_app_mag)):
-        print(c3_app_mag[i])
+    myLCG.LCG_Plot()
 
 
-    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+    canvas = FigureCanvasTkAgg(myLCG.getFig(), master=root)  # A tk.DrawingArea.
     canvas.draw()
     canvas.get_tk_widget().place(x=405, y=20)
 
-    plt.show()
-
-
-def plot():
-    fig = Figure(figsize=(5, 4), dpi=100)
-
-    colors = ['red','green','blue','purple']
-
-    t = np.arange(0, 3, .01)
-    subplot = fig.add_subplot(111)
-    subplot.plot(t, 2 * np.sin(2 * np.pi * t), color=colors[r.randrange(0,3, 1)])
-    subplot.set_xlabel("time [s]")
-    subplot.set_ylabel("f(t)")
-    subplot.set_title("Super cool Plot")
-
-    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
-    canvas.draw()
-    canvas.get_tk_widget().place(x=405, y=20)
-
-    #toolbar = NavigationToolbar2Tk(canvas, root)
-    #toolbar.update()
-    #canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
-
-def CalculateData(filepath):
-
-    global jd_list, total_source_list, total_mag_dif, total_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag
-    global c6_app_mag, source_c5_list, source_c6_list, t1_app_mag
-
-    df = pd.read_csv(filepath)
-
-    jd_list = df["J.D.-2400000"].tolist()
-    source_t1_list = df["Source-Sky_T1"].tolist()
-    source_c2_list = df["Source-Sky_C2"].tolist()
-    source_c3_list = df["Source-Sky_C3"].tolist()
-
-    if 'Source-Sky_C4' in df:
-        source_c4_list = df["Source-Sky_C4"].tolist()
-    else:
-        source_c4_list = [0]
-
-    if 'Source-Sky_C5' in df:
-        source_c5_list = df["Source-Sky_C5"].tolist()
-    else:
-        source_c5_list = [0]
-
-    if 'Source-Sky_C6' in df:
-        source_c6_list = df["Source-Sky_C6"].tolist()
-    else:
-        source_c6_list = [0]
-
-    t1_mag_dif = []
-    t1_app_mag = []
-
-    c2_mag_dif = []
-    c2_app_mag = []
-
-    c3_mag_dif = []
-    c3_app_mag = []
-
-    c4_mag_dif = []
-    c4_app_mag = []
-
-    c5_mag_dif = []
-    c5_app_mag = []
-
-    c6_mag_dif = []
-    c6_app_mag = []
-
-    total_source_list = [source_t1_list, source_c2_list, source_c3_list, source_c4_list, source_c5_list]
-    total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif, c5_mag_dif, c6_mag_dif]
-    total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag, c6_app_mag]
-
-    if source_c5_list[0] == 0:
-        total_source_list = [source_t1_list, source_c2_list, source_c3_list, source_c4_list]
-        total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif]
-        total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag]
-    elif source_c6_list[0] == 0:
-        total_source_list = [source_t1_list, source_c2_list, source_c3_list, source_c4_list, source_c5_list]
-        total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif, c5_mag_dif]
-        total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag]
-    else:
-        total_source_list = [source_t1_list, source_c2_list, source_c3_list, source_c4_list, source_c5_list,
-                             source_c6_list]
-        total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif, c5_mag_dif, c6_mag_dif]
-        total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag, c6_app_mag]
-
-
-    choice = int(checkStarChoice.get())
-    mag = check_star_mag_box.get()
-
-    source_choice = total_source_list[choice]
-    mag_dif_choice = total_mag_dif[choice]
-    app_mag_choice = total_app_mag[choice]
-
-    del(total_source_list[choice])
-    del(total_mag_dif[choice])
-    del(total_app_mag[choice])
-
-    check_pick(source_choice, mag_dif_choice, app_mag_choice, mag)
-    process_data(source_choice, mag_dif_choice, app_mag_choice)
-
-def process_data(source_choice, mag_dif_choice, app_mag_choice):
-
-    for i in range(len(total_source_list)):
-
-        source = total_source_list[i]
-        mag_dif = total_mag_dif[i]
-        app_mag = total_app_mag[i]
-
-        for j in range(len(app_mag_choice)):
-            mag_dif.append(-2.5*m.log10(source[j]/source_choice[j]))
-            #print(mag_dif[j])
-            app_mag.append(mag_dif[j]+float(checkStarChoice.get()))
-            #print(mag_dif[j])
-
-
-def check_pick(source_choice, mag_dif_choice, app_mag_choice, mag):
-
-    for i in range(len(jd_list)):
-        app_mag_choice.append(mag)
-
-    for i in range(len(app_mag_choice)):
-        mag_dif_choice.append(-2.5 * m.log10(source_choice[i] / source_choice[0]))
 
 
 def browseFile():
@@ -184,27 +47,89 @@ def browseFile():
     global filepath
 
     filepath = tk.filedialog.askopenfilename()
-    print(filepath)
+
+    myLCG.setFilePath(filepath)
+    print(myLCG.getFilePath())
 
     return filepath
 
+def graphSettings():
+
+    def applySettings():
+        print("Settings applied!")
+
+    # Toplevel object which will
+    # be treated as a new window
+    newWindow = tk.Toplevel(root)
+
+    newWindow.resizable(False, False)
+    graph_settings.config(state='disable')
+
+    # sets the title of the
+    newWindow.title("Graph Settings")
+
+    # sets the geometry of toplevel
+    newWindow.geometry("300x320")
+
+    graphSettingsLabel = tk.Label(newWindow, text="Graph Settings", font=("Courier 14 bold"))
+    graphSettingsLabel.place(x=70, y=25)
+
+    # Create label for Graph Title
+    graphTitleLabel = tk.Label(newWindow, text="Graph Title")
+    graphTitleLabel.place(x=35, y=80)
+
+    # Create textbox input for Graph Title
+    graphTitleBox = tk.Entry(newWindow, width=30, borderwidth=5)
+    graphTitleBox.place(x=60, y=105)
+
+    # Create label for Graph Title
+    xTitleLabel = tk.Label(newWindow, text="X-axis Title")
+    xTitleLabel.place(x=35, y=140)
+
+    # Create textbox input for Graph Title
+    xTitleBox = tk.Entry(newWindow, width=30, borderwidth=5)
+    xTitleBox.place(x=60, y=165)
+
+    # Create label for Graph Title
+    yTitleLabel = tk.Label(newWindow, text="Y-axis Title")
+    yTitleLabel.place(x=35, y=210)
+
+    # Create textbox input for Graph Title
+    yTitleBox = tk.Entry(newWindow, width=30, borderwidth=5)
+    yTitleBox.place(x=60, y=235)
+
+    #Apply Button
+    applyButton = tk.Button(newWindow, text="Apply", command=applySettings)
+    applyButton.place(x=105, y=280)
+
+    #Cancel Button
+    cancelButton = tk.Button(newWindow, text="Cancel")
+    cancelButton.place(x=155, y=280)
+
+    def quit_win():
+        newWindow.destroy()
+        graph_settings.config(state='normal')
 
 
 
 
-label = tk.Label(root, text="Zack's Light Curve Graphing Tool", font=("Courier", 14), bg="grey")
-label.place(x=15, y=15)
+
+    newWindow.protocol("WM_DELETE_WINDOW", quit_win)
+
+
+label = tk.Label(root, text="KTPO Light Curve Graphing Tool", font=("Courier", 14), bg="grey")
+label.place(x=55, y=15)
 root.columnconfigure(0, weight=1)
 
 instructions = tk.Label(root, text="Welcome! This program takes an excel file of light flux data. \n "
                                   "It graphs a light curve of time vs magnitude.")
-instructions.place(x=25, y=55)
+instructions.place(x=65, y=55)
 
 button = tk.Button(root, text="Browse File", command=browseFile)
-button.place(x=150, y=105)
+button.place(x=190, y=115)
 
 label_primary_check = tk.Label(root, text="Please select your primary check star:")
-label_primary_check.place(x=85, y=143)
+label_primary_check.place(x=125, y=168)
 
 checkStarChoice = tk.StringVar(value=1)
 r2 = tk.Radiobutton(root, text='C2', value=1, variable=checkStarChoice)
@@ -213,30 +138,35 @@ r4 = tk.Radiobutton(root, text='C4', value=3, variable=checkStarChoice)
 r5 = tk.Radiobutton(root, text='C5', value=4, variable=checkStarChoice)
 r6 = tk.Radiobutton(root, text='C6', value=5, variable=checkStarChoice)
 
-r2_x = 65
+r2_x = 105
+r2_y = 200
 
-r2.place(x=r2_x, y=175)
-r3.place(x=r2_x+50, y=175)
-r4.place(x=r2_x+100, y=175)
-r5.place(x=r2_x+150, y=175)
-r6.place(x=r2_x+200, y=175)
+r2.place(x=r2_x, y=r2_y)
+r3.place(x=r2_x+50, y=r2_y)
+r4.place(x=r2_x+100, y=r2_y)
+r5.place(x=r2_x+150, y=r2_y)
+r6.place(x=r2_x+200, y=r2_y)
 
 
 graph_button = tk.Button(root, text="Graph Curve", command=plotLightCurve)
-graph_button.place(x=145, y=285)
+graph_button.place(x=185, y=310)
+
+# Graph Settings Button
+gearIcon = tk.PhotoImage(file = 'images/gear_icon.png')
+gearIcon.zoom(8,8)
+
+
+graph_settings = tk.Button(root, image=gearIcon, command=graphSettings)
+graph_settings.place(x=275, y=310)
 
 # Create label for Planet Name
 
-check_star_mag_label_x = 75
+check_star_mag_label_x = 115
 check_star_mag_label = tk.Label(root, text="Check Star Magnitude:")
-check_star_mag_label.place(x=check_star_mag_label_x, y=225)
+check_star_mag_label.place(x=check_star_mag_label_x, y=250)
 
 # Create textbox input for Planet Name
 check_star_mag_box = tk.Entry(root, width=10, borderwidth=5)
-check_star_mag_box.place(x=check_star_mag_label_x+130, y=225)
-
-
-
-
+check_star_mag_box.place(x=check_star_mag_label_x+130, y=250)
 
 root.mainloop()
