@@ -1,2 +1,4 @@
-# LightCurveGrapher
-A program with a graphical user interface which graphs light curves from excel files
+# KTPO Light Curve Graphing Tool
+A program with a graphical user interface which graphs light curves from CSV files.
+
+
