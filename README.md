@@ -21,5 +21,5 @@ FAQ
 Q: What kind of files can you use?
 
 
-A: As of right now, only csv files work. AstroimageJ will generated you an excel file. You need to open the file and save it as a .csv. I plan on automating this step at some point
+A: As of right now, only csv files work. AstroimageJ will generate you an excel file. You need to open the file and save it as a .csv. I plan on automating this step at some point
 
