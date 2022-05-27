@@ -9,7 +9,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 from PIL import Image, ImageTk
 
-from PIL import Image, ImageTk
 
 # Setup for tkinter
 root = tk.Tk()
@@ -21,8 +20,8 @@ root.title("KTPO Light Curve Graphing Tool")
 root.geometry("450x450")
 root.configure(bg='white')
 
+# This function plots our graph
 def plotGraph():
-
 
     # Disable the "graph" button. This is so it can't be clicked again, opening multiple graphs
     graph_button.config(state='disable')
@@ -30,13 +29,16 @@ def plotGraph():
     # Disable the "gear" button
     graph_settings.config(state='disable')
 
+    #Use pandas to make a dataframe with our filepath
     df = pd.read_csv(filepath)
 
+    # Create some lists using column titles from our dataframe
     jd_list = df["J.D.-2400000"].tolist()
     source_t1_list = df["Source-Sky_T1"].tolist()
     source_c2_list = df["Source-Sky_C2"].tolist()
     source_c3_list = df["Source-Sky_C3"].tolist()
 
+    # Check to see how many check stars we have up to 6, and adjust accordingly
     if 'Source-Sky_C4' in df:
         source_c4_list = df["Source-Sky_C4"].tolist()
     else:
@@ -52,6 +54,7 @@ def plotGraph():
     else:
         source_c6_list = [0]
 
+    # Making our magnitude difference and apparent magnititude lists
     t1_mag_dif = []
     t1_app_mag = []
 
@@ -70,10 +73,12 @@ def plotGraph():
     c6_mag_dif = []
     c6_app_mag = []
 
+    # A list of our lists
     total_source_list = [source_t1_list, source_c2_list, source_c3_list, source_c4_list, source_c5_list]
     total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif, c5_mag_dif, c6_mag_dif]
     total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag, c6_app_mag]
 
+    # Adjusting total list based on how many check stars there are
     if source_c5_list[0] == 0:
         total_source_list = [source_t1_list, source_c2_list, source_c3_list, source_c4_list]
         total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif]
@@ -87,6 +92,7 @@ def plotGraph():
                              source_c6_list]
         total_mag_dif = [t1_mag_dif, c2_mag_dif, c3_mag_dif, c4_mag_dif, c5_mag_dif, c6_mag_dif]
         total_app_mag = [t1_app_mag, c2_app_mag, c3_app_mag, c4_app_mag, c5_app_mag, c6_app_mag]
+
 
     def check_pick(source_choice, mag_dif_choice, app_mag_choice, mag):
 
@@ -111,9 +117,6 @@ def plotGraph():
                 # print(mag_dif[j]+app_mag_choice[j])
 
     def graph_results():
-
-        #object_name = input("Please enter the name of your object")
-        #date = input("PLease enter the date the object was observered")
 
         plt.scatter(jd_list, c2_app_mag, label="c2 apparent mag.")
         plt.scatter(jd_list, c3_app_mag, label="c3 apparent mag.")
@@ -153,10 +156,6 @@ def plotGraph():
         graph_settings.config(state='normal')
 
 
-
-
-
-
 # browseFile is a function linked to the "browse" button in the program. It gets the filepath
 def browseFile():
 
@@ -178,11 +177,13 @@ def graphSettings():
         plt.title(str(graphTitleBox.get()))
         newWindow.destroy()
         graph_settings.config(state='normal')
+        graph_button.config(state='normal')
 
     # When the window is closed, return the "gear" button to it's normal state
     def quit_win():
         newWindow.destroy()
         graph_settings.config(state='normal')
+        graph_button.config(state='normal')
 
     # Code to make a seperate window
     newWindow = tk.Toplevel(root)
@@ -192,6 +193,9 @@ def graphSettings():
 
     # Disable the "gear" button. This is so it can't be clicked again, opening multiple settings windows
     graph_settings.config(state='disable')
+
+    # Disable the "graph" button. This is so it can't be clicked again, opening multiple graphs
+    graph_button.config(state='disable')
 
     # sets the title of the window
     newWindow.title("Graph Settings")
@@ -279,7 +283,7 @@ r6.place(x=r2_x+200, y=r2_y)
 
 # "graph" button
 graph_button = tk.Button(root, text="Graph Curve", command=plotGraph)
-graph_button.place(x=185, y=310)
+graph_button.place(x=150, y=310)
 
 # Gear Icon info
 gearIcon = tk.PhotoImage(file = 'images/gear_icon.png')
@@ -287,7 +291,7 @@ gearIcon.zoom(8,8)
 
 # Gear Button
 graph_settings = tk.Button(root, image=gearIcon, command=graphSettings)
-graph_settings.place(x=275, y=310)
+graph_settings.place(x=240, y=310)
 
 # Check star mag label
 check_star_mag_label_x = 115
