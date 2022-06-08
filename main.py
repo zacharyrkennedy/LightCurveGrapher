@@ -26,9 +26,17 @@ root = tk.Tk()
 # Set the window to not be resizeable, add a title to the window and the set the window dimensions
 root.resizable(False, False)
 root.title("KTPO Light Curve Graphing Tool")
-root.geometry("450x500")
-root.configure(bg='white')
+root.geometry("520x560")
+root.configure(bg='red')
 root.iconbitmap("images/LOGOICO.ico")
+
+backgroundImage=tk.PhotoImage(file = 'images/spacebackground.png')
+backgroundImageLabel=tk.Label(root, image=backgroundImage)
+backgroundImageLabel.place(x=0,y=0)
+
+canvas = tk.Canvas(root, width=400,height=440)
+canvas.configure(bg='white')
+canvas.place(x=60, y=60)
 
 
 # This function plots our graph
@@ -207,10 +215,10 @@ def browseFile():
 
     if fileType != ".csv":
         messageLabel.config(text="ERROR: filetype " + fileType + " is not supported", foreground='red')
-        messageLabel.place(x=120, y=365)
+        messageLabel.place(x=160, y=400)
     elif fileType == ".csv":
         messageLabel.config(text="File: " + os.path.basename(filepath), foreground='black')
-        messageLabel.place(x=140, y=365)
+        messageLabel.place(x=180, y=400)
         graph_settings.config(state='normal')
 
     return filepath
@@ -307,9 +315,10 @@ def graphSettings():
     # Calls the quit_win function when the window is closed.
     newWindow.protocol("WM_DELETE_WINDOW", quit_win)
 
-img = ImageTk.PhotoImage(Image.open("images/LOGO1.jpg"))
+img = ImageTk.PhotoImage(Image.open("images/LOGO6.png"))
 panel = tk.Label(root, image = img, borderwidth=0, background='white')
-panel.place(x=140, y=15)
+panel.place(x=60, y=70)
+#panel.pack(pady=45)
 
 # Create a title label for the main window, then place it
 #label = tk.Label(root, text="KTPO Light Curve Graphing Tool", font=("Courier", 14), bg="grey")
@@ -317,19 +326,22 @@ panel.place(x=140, y=15)
 root.columnconfigure(0, weight=1)
 
 # Add the instructions and place them
-instructions = tk.Label(root, text="Welcome! This program takes an .csv file of light flux data, \n "
-                                   "graphing a light curve of time vs magnitude.")
-instructions.place(x=65, y=145)
+#instructions = tk.Label(root, text="Welcome! This program takes an .csv file of light flux data, \n "
+                              #     "graphing a light curve of time vs magnitude.")
+#instructions.place(x=95, y=145)
+#instructions.pack()
 
 # Add a button to browse for files, and place it
 button = tk.Button(root, text="Browse File", command=browseFile)
-button.place(x=190, y=205)
+button.pack(pady=190)
+#button.place(x=220, y=205)
 button_tip = Hovertip(button,'Browse for a file. Only .csv files are supported')
 
 
 # Add label for primary check star info
 label_primary_check = tk.Label(root, text="Please select your primary check star:")
-label_primary_check.place(x=125, y=258)
+label_primary_check.place(x=155, y=238)
+#label_primary_check.pack()
 
 # Radio buttons selecton for check stars
 checkStarChoice = tk.StringVar(value=1)
@@ -340,8 +352,8 @@ r5 = tk.Radiobutton(root, text='C5', value=4, variable=checkStarChoice)
 r6 = tk.Radiobutton(root, text='C6', value=5, variable=checkStarChoice)
 
 # Variables to set the position of the r2 radio button
-r2_x = 105
-r2_y = 290
+r2_x = 145
+r2_y = 270
 
 # Place all of the radio buttons relative to r2
 r2.place(x=r2_x, y=r2_y)
@@ -350,9 +362,12 @@ r4.place(x=r2_x + 100, y=r2_y)
 r5.place(x=r2_x + 150, y=r2_y)
 r6.place(x=r2_x + 200, y=r2_y)
 
+
+
 # "graph" button
 graph_button = tk.Button(root, text="Graph Curve", command=plotGraph)
-graph_button.place(x=150, y=400)
+graph_button.place(x=190, y=445)
+#graph_button.pack()
 
 # Gear Icon info
 gearIcon = tk.PhotoImage(file='images/gear_icon.png')
@@ -361,22 +376,27 @@ gearIcon.zoom(8, 8)
 
 # Gear Button
 graph_settings = tk.Button(root, image=gearIcon, command=graphSettings, state='disable')
-graph_settings.place(x=240, y=400)
+graph_settings.place(x=280, y=445)
+#graph_settings.pack()
 graph_settings_tip = Hovertip(graph_settings,'Opens a menu to customize your graph')
 
 # Check star mag label
-check_star_mag_label_x = 115
+check_star_mag_label_x = 145
 check_star_mag_label = tk.Label(root, text="Check Star Magnitude:")
 check_star_mag_label.place(x=check_star_mag_label_x, y=340)
+#check_star_mag_label.pack()
 
 # Check star mag box and placed
 check_star_mag_box = tk.Entry(root, width=10, borderwidth=5)
 check_star_mag_box.place(x=check_star_mag_label_x + 130, y=340)
+#check_star_mag_box.pack()
 check_star_mag_box_tip = Hovertip(check_star_mag_box,'Enter the magnitude of your primary check star')
 
 def quit_me():
     root.quit()
     root.destroy()
+
+root.wm_attributes("-transparentcolor", 'purple')
 
 # Run program
 root.mainloop()
