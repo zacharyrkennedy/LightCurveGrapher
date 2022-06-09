@@ -27,13 +27,14 @@ root = tk.Tk()
 root.resizable(False, False)
 root.title("KTPO Light Curve Graphing Tool")
 root.geometry("520x560")
-root.configure(bg='red')
 root.iconbitmap("images/LOGOICO.ico")
 
+# Set our background image and place it
 backgroundImage=tk.PhotoImage(file = 'images/spacebackground.png')
 backgroundImageLabel=tk.Label(root, image=backgroundImage)
 backgroundImageLabel.place(x=0,y=0)
 
+# Make a white box to put over the background
 canvas = tk.Canvas(root, width=400,height=440)
 canvas.configure(bg='white')
 canvas.place(x=60, y=60)
@@ -42,9 +43,13 @@ canvas.place(x=60, y=60)
 # This function plots our graph
 def plotGraph():
 
+    # Split the path up
     split_path = os.path.splitext(filepath)
+
+    # Set the variable fileType equal to the .filetype part of our split path
     fileType = split_path[1]
 
+    # Checks to see if our filetype is a .csv file
     if fileType != ".csv":
         messageLabel.config(text="ERROR: Could not graph. Unsupported file type")
     else:
@@ -142,43 +147,53 @@ def plotGraph():
 
         def graph_results():
 
+            # Split the filename and the extension
             def uniquify(path):
                 filename, extension = os.path.splitext(path)
                 counter = 2
 
+                # Increment the number at the end of filename when a file with the same name already exists
                 while os.path.exists(path):
                     path = filename + str(counter) + extension
                     counter += 1
 
                 return path
 
+            # Plot c2 to c4
             plt.scatter(jd_list, c2_app_mag, label="c2 apparent mag.")
             plt.scatter(jd_list, c3_app_mag, label="c3 apparent mag.")
             plt.scatter(jd_list, c4_app_mag, label="c4 apparent mag.")
 
+            # Plot c5 and c6 if applicaable
             if source_c5_list[0] != 0:
                 plt.scatter(jd_list, c5_app_mag, label="c5 apparent mag.")
             if source_c6_list[0] != 0:
                 plt.scatter(jd_list, c6_app_mag, label="c6 apparent mag.")
 
+            # Plot our target star
             plt.scatter(jd_list, t1_app_mag, label="t1 apparent mag.")
 
+            # Plot the legend
             plt.legend(title='Object Magnititudes', bbox_to_anchor=(1.05, 1.0), loc='upper left')
             plt.tight_layout()
 
-            if var.get() == 0:
+            # Checks to see if the user is in quicksave mode or not
+            try:
+                if var.get() == 0:
+                    plt.show()
+                elif var.get() == 1:
+                    desktopPath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+                    imagePath = desktopPath + '/graph.png'
+
+                    imagePath = uniquify(imagePath)
+
+                    plt.savefig(imagePath)
+                    plt.clf()
+                    #print(desktopPath)
+            except NameError:
                 plt.show()
-            elif var.get() == 1:
-                desktopPath = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-                imagePath = desktopPath + '/graph.png'
 
-                imagePath = uniquify(imagePath)
-
-                plt.savefig(imagePath)
-                plt.clf()
-                #print(desktopPath)
-
-
+        # Sets the users chosen choice star and it's magnitude
         choice = int(checkStarChoice.get())
         mag = float(check_star_mag_box.get())
 
@@ -194,32 +209,62 @@ def plotGraph():
         process_data(source_choice, mag_dif_choice, app_mag_choice)
         graph_results()
 
+        # If the plot is still open, don't let the user graph again until it is closed
         if plt.fignum_exists(100):
             pass
         else:
             graph_button.config(state='normal')
             graph_settings.config(state='normal')
 
-
+# Create a label for our feedback messages
 messageLabel = tk.Label(root)
-
 
 # browseFile is a function linked to the "browse" button in the program. It gets the filepath
 def browseFile():
     global filepath
 
+    # Set our filepath variable equal to the file the user chooses
     filepath = tk.filedialog.askopenfilename()
 
     split_path = os.path.splitext(filepath)
     fileType = split_path[1]
 
+    # If the filepath isn't a .csv file then show an error
     if fileType != ".csv":
         messageLabel.config(text="ERROR: filetype " + fileType + " is not supported", foreground='red')
         messageLabel.place(x=160, y=400)
+        graph_button.config(state='disable')
+        graph_settings.config(state='disable')
     elif fileType == ".csv":
         messageLabel.config(text="File: " + os.path.basename(filepath), foreground='black')
         messageLabel.place(x=180, y=400)
         graph_settings.config(state='normal')
+        graph_button.config(state='normal')
+
+
+        # Create a temporary dataframe for our file
+        tempDF = pd.read_csv(filepath)
+
+        # Check and see how many check stars there are, and unlock accordingly
+        if 'Source-Sky_C6' in tempDF:
+            r2.config(state='normal')
+            r3.config(state='normal')
+            r4.config(state='normal')
+            r5.config(state='normal')
+            r6.config(state='normal')
+        elif 'Source-Sky_C5' in tempDF:
+            r2.config(state='normal')
+            r3.config(state='normal')
+            r4.config(state='normal')
+            r5.config(state='normal')
+        elif 'Source-Sky_C4' in tempDF:
+            r2.config(state='normal')
+            r3.config(state='normal')
+            r4.config(state='normal')
+        else:
+            r2.config(state='normal')
+            r3.config(state='normal')
+
 
     return filepath
 
@@ -227,6 +272,7 @@ def browseFile():
 # Function attached to the "gear" button on the program
 def graphSettings():
     global var
+
 
     # Code attached to the "Apply" button
     def applySettings():
@@ -236,6 +282,7 @@ def graphSettings():
 
         graph_settings.config(state='normal')
 
+        # Change the text of the graph button depending on if quick save mode is enabled
         if var.get() == 1:
             graph_button.config(text="Save")
         if var.get() == 0:
@@ -345,11 +392,11 @@ label_primary_check.place(x=155, y=238)
 
 # Radio buttons selecton for check stars
 checkStarChoice = tk.StringVar(value=1)
-r2 = tk.Radiobutton(root, text='C2', value=1, variable=checkStarChoice)
-r3 = tk.Radiobutton(root, text='C3', value=2, variable=checkStarChoice)
-r4 = tk.Radiobutton(root, text='C4', value=3, variable=checkStarChoice)
-r5 = tk.Radiobutton(root, text='C5', value=4, variable=checkStarChoice)
-r6 = tk.Radiobutton(root, text='C6', value=5, variable=checkStarChoice)
+r2 = tk.Radiobutton(root, text='C2', value=1, variable=checkStarChoice, state='disable')
+r3 = tk.Radiobutton(root, text='C3', value=2, variable=checkStarChoice, state='disable')
+r4 = tk.Radiobutton(root, text='C4', value=3, variable=checkStarChoice, state='disable')
+r5 = tk.Radiobutton(root, text='C5', value=4, variable=checkStarChoice, state='disable')
+r6 = tk.Radiobutton(root, text='C6', value=5, variable=checkStarChoice, state='disable')
 
 # Variables to set the position of the r2 radio button
 r2_x = 145
@@ -396,10 +443,13 @@ def quit_me():
     root.quit()
     root.destroy()
 
-root.wm_attributes("-transparentcolor", 'purple')
+# Disable the "graph" button. This is so it can't be clicked again, opening multiple graphs
+graph_button.config(state='disable')
+
+# Disable the "gear" button
+graph_settings.config(state='disable')
 
 # Run program
 root.mainloop()
 
-#root.protocol("WM_DELETE_WINDOW", quit_me)
 
