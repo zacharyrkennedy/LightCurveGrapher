@@ -19,7 +19,7 @@ from idlelib.tooltip import Hovertip
 __author__ = 'Zachary Kennedy'
 __credits__ = ['WSU KTPO Research Group ']
 __license__ = 'Open Source'
-__version__ = '1.05'
+__version__ = '1.1'
 __maintainer__ = 'Zachary Kennedy'
 __email__ = 'zacharykennedy@mail.weber.edu'
 __status__ = 'early development'
@@ -415,7 +415,7 @@ root = tk.Tk()
 
 # Set the window to not be resizeable, add a title to the window and the set the window dimensions
 root.resizable(False, False)
-root.title(_AppName_ + " " + __version__)
+root.title(_AppName_ + " v" + __version__)
 root.geometry("520x560")
 root.iconbitmap("images/LOGOICO.ico")
 
