@@ -395,12 +395,11 @@ def check_updates():
                 dl()
 
                 root.destroy()
-                os.remove(sys.argv[0])
+                os.remove(filename)
                 sys.exit()
 
             elif mb1 == 'No':
                 root.deiconify()
-                pass
 
         else:
             tk.messagebox.showinfo('Updates Not Available', 'No updates are available')
@@ -415,7 +414,7 @@ root = tk.Tk()
 
 # Set the window to not be resizeable, add a title to the window and the set the window dimensions
 root.resizable(False, False)
-root.title("KTPO Light Curve Graphing Tool")
+root.title(_AppName_ + " " + __version__)
 root.geometry("520x560")
 root.iconbitmap("images/LOGOICO.ico")
 
