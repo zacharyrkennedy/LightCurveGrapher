@@ -389,7 +389,7 @@ def check_updates():
 
                 def dl():
                     downloadUrl = "https://github.com/zacharyrkennedy/LightCurveGrapher/blob/main/LCG.exe?raw=true"
-                    exeName = "LCG.exe"
+                    exeName = "LCG v" + __version__ + ".exe"
                     urlretrieve(downloadUrl, exeName, report)
 
                 dl()
@@ -407,7 +407,6 @@ def check_updates():
             root.deiconify()
 
     except Exception as e:
-        root.deiconify()
         pass
 
 
