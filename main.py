@@ -19,7 +19,7 @@ from idlelib.tooltip import Hovertip
 __author__ = 'Zachary Kennedy'
 __credits__ = ['WSU KTPO Research Group ']
 __license__ = 'Open Source'
-__version__ = '1.1'
+__version__ = '1.05'
 __maintainer__ = 'Zachary Kennedy'
 __email__ = 'zacharykennedy@mail.weber.edu'
 __status__ = 'early development'
@@ -351,14 +351,15 @@ def check_updates():
         check = requests.get(link)
 
         if float(__version__) < float(check.text):
-            root.withdraw()
+
             mb1 = tk.messagebox.askyesno('Update Available',
                                       'There is an update available. Click yes to update.')  # confirming update with user
             if mb1 is True:
+
                 filename = os.path.basename(sys.argv[0])  # gets current name of itself
 
                 for file in os.listdir():
-                    if file == filename or file == 'images' or file == 'updates':  # Does not delete itself
+                    if file == 'images' or file == 'updates':  # Does not delete itself
                         pass
 
                     else:
@@ -389,21 +390,21 @@ def check_updates():
 
                 def dl():
                     downloadUrl = "https://github.com/zacharyrkennedy/LightCurveGrapher/blob/main/LCG.exe?raw=true"
-                    exeName = "LCG v" + str(check.text) + ".exe"
+                    exeName = f'LCG v{float(check.text)}.exe'
+                    print(exeName)
                     urlretrieve(downloadUrl, exeName, report)
 
                 dl()
 
                 root.destroy()
-                os.remove(sys.argv[0])
+                os.remove("LCG v" + str(__version__))
                 sys.exit()
 
             elif mb1 == 'No':
-                root.deiconify()
+                pass
 
         else:
             tk.messagebox.showinfo('Updates Not Available', 'No updates are available')
-            root.deiconify()
 
     except Exception as e:
         pass
