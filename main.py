@@ -19,7 +19,7 @@ from idlelib.tooltip import Hovertip
 __author__ = 'Zachary Kennedy'
 __credits__ = ['WSU KTPO Research Group ']
 __license__ = 'Open Source'
-__version__ = '1.1'
+__version__ = '1.05'
 __maintainer__ = 'Zachary Kennedy'
 __email__ = 'zacharykennedy@mail.weber.edu'
 __status__ = 'early development'
@@ -389,13 +389,13 @@ def check_updates():
 
                 def dl():
                     downloadUrl = "https://github.com/zacharyrkennedy/LightCurveGrapher/blob/main/LCG.exe?raw=true"
-                    exeName = "LCG v" + __version__ + ".exe"
+                    exeName = "LCG v" + str(check.text) + ".exe"
                     urlretrieve(downloadUrl, exeName, report)
 
                 dl()
 
                 root.destroy()
-                os.remove(filename)
+                os.remove(sys.argv[0])
                 sys.exit()
 
             elif mb1 == 'No':
