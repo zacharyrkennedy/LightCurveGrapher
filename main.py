@@ -1,7 +1,13 @@
 import tkinter as tk
 import tkinter.filedialog
+import tkinter.messagebox
 import math as m
 import os
+import sys
+import tkinter as tk
+import tkinter.ttk as ttk
+from urllib.request import urlretrieve
+import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -13,32 +19,12 @@ from idlelib.tooltip import Hovertip
 __author__ = 'Zachary Kennedy'
 __credits__ = ['WSU KTPO Research Group ']
 __license__ = 'Open Source'
-__version__ = '1.0'
+__version__ = '1.05'
 __maintainer__ = 'Zachary Kennedy'
 __email__ = 'zacharykennedy@mail.weber.edu'
 __status__ = 'early development'
 
 _AppName_ = 'KTPO Light Curve Graphing Tool'
-
-# Setup for tkinter
-root = tk.Tk()
-
-# Set the window to not be resizeable, add a title to the window and the set the window dimensions
-root.resizable(False, False)
-root.title("KTPO Light Curve Graphing Tool")
-root.geometry("520x560")
-root.iconbitmap("images/LOGOICO.ico")
-
-# Set our background image and place it
-backgroundImage=tk.PhotoImage(file = 'images/spacebackground.png')
-backgroundImageLabel=tk.Label(root, image=backgroundImage)
-backgroundImageLabel.place(x=0,y=0)
-
-# Make a white box to put over the background
-canvas = tk.Canvas(root, width=400,height=440)
-canvas.configure(bg='white')
-canvas.place(x=60, y=60)
-
 
 # This function plots our graph
 def plotGraph():
@@ -216,9 +202,6 @@ def plotGraph():
             graph_button.config(state='normal')
             graph_settings.config(state='normal')
 
-# Create a label for our feedback messages
-messageLabel = tk.Label(root)
-
 # browseFile is a function linked to the "browse" button in the program. It gets the filepath
 def browseFile():
     global filepath
@@ -362,6 +345,97 @@ def graphSettings():
     # Calls the quit_win function when the window is closed.
     newWindow.protocol("WM_DELETE_WINDOW", quit_win)
 
+def check_updates():
+    try:
+        link = "https://raw.githubusercontent.com/zacharyrkennedy/LightCurveGrapher/main/updates/version.txt"
+        check = requests.get(link)
+
+        if float(__version__) < float(check.text):
+            root.withdraw()
+            mb1 = tk.messagebox.askyesno('Update Available',
+                                      'There is an update available. Click yes to update.')  # confirming update with user
+            if mb1 is True:
+                filename = os.path.basename(sys.argv[0])  # gets current name of itself
+
+                for file in os.listdir():
+                    if file == filename or file == 'images' or file == 'updates':  # Does not delete itself
+                        pass
+
+                    else:
+                        os.remove(file)  # removes all other files from the folder
+
+                updateWindow = tk.Toplevel(root)
+                updateWindow.geometry('550x300')
+                updateWindow.resizable(False, False)
+                updateWindow.title('Downloading update...')
+                updateWindow.configure(bg="white")
+
+                logoImg = ImageTk.PhotoImage(Image.open("images/LOGO6.png"))
+                logoImgPanel = tk.Label(updateWindow, image=img, borderwidth=0, background='white')
+                logoImgPanel.pack(pady=10)
+
+                updateLabel = tk.Label(updateWindow, text="Downloading your update now.\nPlease don't close this window", bg='white', font=("Segoe UI", 12))
+                updateLabel.pack(pady=40)
+
+                progressbar = ttk.Progressbar(updateWindow)
+                progressbar.configure(length=450, orient='horizontal', mode='determinate', maximum=100)
+                progressbar.pack(pady=15, padx=10)
+
+                def report(count, block_size, total_size):
+                    progress_size = count * block_size
+                    percent = progress_size * 100 / total_size
+                    progressbar['value'] = percent
+                    updateWindow.update()
+
+                def dl():
+                    downloadUrl = "https://github.com/zacharyrkennedy/LightCurveGrapher/blob/main/LCG.exe?raw=true"
+                    exeName = "LCG.exe"
+                    urlretrieve(downloadUrl, exeName, report)
+
+                dl()
+
+                root.destroy()
+                os.remove(sys.argv[0])
+                sys.exit()
+
+            elif mb1 == 'No':
+                pass
+
+        else:
+            tk.messagebox.showinfo('Updates Not Available', 'No updates are available')
+
+    except Exception as e:
+        pass
+
+    root.deiconify()
+
+
+
+
+
+
+# Setup for tkinter
+root = tk.Tk()
+
+# Set the window to not be resizeable, add a title to the window and the set the window dimensions
+root.resizable(False, False)
+root.title("KTPO Light Curve Graphing Tool")
+root.geometry("520x560")
+root.iconbitmap("images/LOGOICO.ico")
+
+# Set our background image and place it
+backgroundImage=tk.PhotoImage(file = 'images/spacebackground.png')
+backgroundImageLabel=tk.Label(root, image=backgroundImage)
+backgroundImageLabel.place(x=0,y=0)
+
+# Make a white box to put over the background
+canvas = tk.Canvas(root, width=400,height=440)
+canvas.configure(bg='white')
+canvas.place(x=60, y=60)
+
+# Create a label for our feedback messages
+messageLabel = tk.Label(root)
+
 img = ImageTk.PhotoImage(Image.open("images/LOGO6.png"))
 panel = tk.Label(root, image = img, borderwidth=0, background='white')
 panel.place(x=60, y=70)
@@ -372,18 +446,14 @@ panel.place(x=60, y=70)
 #label.place(x=55, y=15)
 root.columnconfigure(0, weight=1)
 
-# Add the instructions and place them
-#instructions = tk.Label(root, text="Welcome! This program takes an .csv file of light flux data, \n "
-                              #     "graphing a light curve of time vs magnitude.")
-#instructions.place(x=95, y=145)
-#instructions.pack()
-
 # Add a button to browse for files, and place it
 button = tk.Button(root, text="Browse File", command=browseFile)
 button.pack(pady=190)
 #button.place(x=220, y=205)
 button_tip = Hovertip(button,'Browse for a file. Only .csv files are supported')
 
+versionNum = tk.Label(root, text="Version: " + __version__, fg='white', bg='black', font=("Segoe UI", 9))
+versionNum.place(x=5, y=535)
 
 # Add label for primary check star info
 label_primary_check = tk.Label(root, text="Please select your primary check star:")
@@ -449,7 +519,11 @@ graph_button.config(state='disable')
 # Disable the "gear" button
 graph_settings.config(state='disable')
 
+check_updates()
+
 # Run program
 root.mainloop()
+
+
 
 
