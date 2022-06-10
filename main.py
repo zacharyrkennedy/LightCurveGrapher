@@ -19,7 +19,7 @@ from idlelib.tooltip import Hovertip
 __author__ = 'Zachary Kennedy'
 __credits__ = ['WSU KTPO Research Group ']
 __license__ = 'Open Source'
-__version__ = '1.1'
+__version__ = '1.05'
 __maintainer__ = 'Zachary Kennedy'
 __email__ = 'zacharykennedy@mail.weber.edu'
 __status__ = 'early development'
