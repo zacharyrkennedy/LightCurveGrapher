@@ -19,7 +19,7 @@ from idlelib.tooltip import Hovertip
 __author__ = 'Zachary Kennedy'
 __credits__ = ['WSU KTPO Research Group ']
 __license__ = 'Open Source'
-__version__ = '1.1'
+__version__ = '1.05'
 __maintainer__ = 'Zachary Kennedy'
 __email__ = 'zacharykennedy@mail.weber.edu'
 __status__ = 'early development'
@@ -359,7 +359,7 @@ def check_updates():
                 filename = os.path.basename(sys.argv[0])  # gets current name of itself
 
                 for file in os.listdir():
-                    if file == 'images' or file == 'updates':  # Does not delete itself
+                    if file == filename or file == 'images' or file == 'updates':  # Does not delete itself
                         pass
 
                     else:
@@ -375,7 +375,7 @@ def check_updates():
                 logoImgPanel = tk.Label(updateWindow, image=img, borderwidth=0, background='white')
                 logoImgPanel.pack(pady=10)
 
-                updateLabel = tk.Label(updateWindow, text="Downloading your update now.\nPlease don't close this window", bg='white', font=("Segoe UI", 12))
+                updateLabel = tk.Label(updateWindow, text="Downloading your update now.\nPlease do not close this window", bg='white', font=("Segoe UI", 12))
                 updateLabel.pack(pady=40)
 
                 progressbar = ttk.Progressbar(updateWindow)
